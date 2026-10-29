@@ -577,8 +577,8 @@ function openAiDialog() {
     return;
   }
   $('#ai-photo-step').hidden = !formPhoto;
-  $('#ai-copy-done').textContent = '';
-  $('#ai-photo-done').textContent = 'en plak die ook in de chat';
+  $('#ai-copy-done').textContent = 'en plak hem in dezelfde chat. Verstuur daarna.';
+  $('#ai-photo-done').textContent = 'en plak hem meteen in de chat (Ctrl+V).';
   $('#ai-answer').value = '';
   $('#ai-dialog-status').textContent = '';
   $('#dlg-ai').showModal();
@@ -592,13 +592,15 @@ async function copyAiPrompt() {
     producer: form.elements.producer.value.trim(),
     hasPhoto: !!formPhoto,
   }));
-  $('#ai-copy-done').textContent = '✓ Gekopieerd';
+  $('#ai-copy-done').textContent = formPhoto
+    ? '✓ Vraag gekopieerd. Plak hem nu in dezelfde chat als de foto en verstuur.'
+    : '✓ Vraag gekopieerd. Plak hem nu in de chat en verstuur.';
 }
 
 async function copyAiPhoto() {
   try {
     await WineAI.copyImage(formPhoto);
-    $('#ai-photo-done').textContent = '✓ Gekopieerd, plak hem ook in de chat';
+    $('#ai-photo-done').textContent = '✓ Foto gekopieerd. Plak hem nu in de chat, en kopieer daarna de vraag.';
   } catch {
     $('#ai-photo-done').textContent = 'Kopiëren lukte niet. Sleep de foto zelf in de chat.';
   }

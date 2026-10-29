@@ -146,18 +146,19 @@
 
   <dialog id="dlg-ai">
     <h2>Aanvullen via Claude</h2>
+    <p class="small muted">Het klembord onthoudt maar één ding tegelijk: plak dus meteen na elke kopie.</p>
     <ol class="steps">
       <li>
-        <button type="button" class="primary" id="btn-ai-copy">Kopieer de vraag</button>
-        <span id="ai-copy-done" class="small muted"></span>
+        Open een nieuwe chat op <a href="https://claude.ai/new" target="_blank" rel="noopener">claude.ai</a>.
+        <span class="small muted">Staat “zoeken op internet” aan? Dan krijg je actuele prijzen.</span>
       </li>
       <li id="ai-photo-step">
         <button type="button" id="btn-ai-copy-photo">Kopieer de foto</button>
-        <span id="ai-photo-done" class="small muted">en plak die ook in de chat</span>
+        <span id="ai-photo-done" class="small muted">en plak hem meteen in de chat (Ctrl+V).</span>
       </li>
       <li>
-        Plak alles in een nieuwe chat op <a href="https://claude.ai/new" target="_blank" rel="noopener">claude.ai</a> en verstuur het.
-        <span class="small muted">Staat “zoeken op internet” aan? Dan krijg je actuele prijzen.</span>
+        <button type="button" class="primary" id="btn-ai-copy">Kopieer de vraag</button>
+        <span id="ai-copy-done" class="small muted">en plak hem in dezelfde chat. Verstuur daarna.</span>
       </li>
       <li>
         Kopieer het antwoord van Claude en plak het hier:
