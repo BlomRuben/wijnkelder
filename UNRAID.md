@@ -14,8 +14,8 @@ pc (Claude past de app aan)
 
 | Onderdeel | Waar |
 |---|---|
-| De code | GitHub-repo `wijnkelder` (openbaar) |
-| De container-image | `ghcr.io/<gebruikersnaam>/wijnkelder` |
+| De code | [github.com/BlomRuben/wijnkelder](https://github.com/BlomRuben/wijnkelder) (openbaar) |
+| De container-image | `ghcr.io/blomruben/wijnkelder` |
 | Je gegevens, foto's en dagelijkse kopieën | Unraid: `/mnt/user/appdata/wijnkelder` |
 
 Je gegevens komen **nooit** op GitHub: ze staan alleen op Unraid, en `.gitignore`
@@ -31,29 +31,10 @@ In de appdata-map:
 
 ## Eenmalig: installeren
 
-### 1. Repo op GitHub
-1. Ga naar [github.com/new](https://github.com/new).
-2. Repository name: `wijnkelder`, zichtbaarheid **Public**.
-3. Vink **niets** aan (geen README, geen .gitignore, geen licentie): de repo moet leeg zijn.
-4. Klik op **Create repository**.
-
-### 2. Eerste keer pushen
-In PowerShell in de projectmap (vervang `<gebruikersnaam>`):
-
-```powershell
-git remote add origin https://github.com/<gebruikersnaam>/wijnkelder.git
-git push -u origin main
-```
-
-Bij de eerste push opent een venster om in te loggen bij GitHub.
-
-### 3. Wachten op de eerste image
-Op GitHub in je repo → tabblad **Actions**: “Container bouwen” draait
-(ongeveer een minuut). Een groen vinkje betekent dat de image klaar is.
-
-Controleer daarna op je GitHub-profiel → **Packages** → `wijnkelder` →
-**Package settings** dat *Danger Zone → Change visibility* op **Public** staat.
-Anders kan Unraid de image niet zonder inloggen ophalen.
+### 1–3. GitHub (al gedaan)
+De repo [BlomRuben/wijnkelder](https://github.com/BlomRuben/wijnkelder) bestaat, is
+gekoppeld aan deze map (via de GitHub-tool `gh`, ingelogd als BlomRuben), en de
+eerste image is gebouwd en openbaar op te halen.
 
 ### 4. De container aanmaken
 Unraid → **Docker** → **Add Container**:
@@ -61,7 +42,7 @@ Unraid → **Docker** → **Add Container**:
 | Veld | Waarde |
 |---|---|
 | Name | `wijnkelder` |
-| Repository | `ghcr.io/<gebruikersnaam>/wijnkelder:latest` (in kleine letters) |
+| Repository | `ghcr.io/blomruben/wijnkelder:latest` |
 | Network Type | `Bridge` |
 | WebUI | `http://[IP]:[PORT:8080]/` |
 
@@ -91,7 +72,7 @@ Je gegevens blijven staan: die zitten in appdata, niet in de container.
 
 ### Terug naar een eerdere versie
 Elke versie heeft ook een eigen code (de commit-code, te zien bij **Actions**).
-Zet in Unraid bij Repository `ghcr.io/<gebruikersnaam>/wijnkelder:<commit-code>` in
+Zet in Unraid bij Repository `ghcr.io/blomruben/wijnkelder:<commit-code>` in
 plaats van `:latest`. Zet het later terug op `:latest` om weer mee te gaan met updates.
 
 ## Onderweg gebruiken
