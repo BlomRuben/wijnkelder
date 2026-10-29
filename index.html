@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wijnkelder</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>🍷 Wijnkelder</h1>
+    <nav class="tabs">
+      <button data-tab="overzicht" class="active">Overzicht</button>
+      <button data-tab="wijnen">Wijnen</button>
+      <button data-tab="rekken">Rekken</button>
+      <button data-tab="kaart">Kaart</button>
+      <button data-tab="wensen">Wensenlijst</button>
+      <button data-tab="gegevens">Gegevens</button>
+    </nav>
+  </header>
+
+  <main>
+    <div id="banner" class="banner" role="alert" hidden></div>
+
+    <!-- Overzicht: wordt volledig door app.js gevuld -->
+    <section id="tab-overzicht" class="tab active"><p class="muted">Kelder laden…</p></section>
+
+    <!-- Wijnen -->
+    <section id="tab-wijnen" class="tab">
+      <div class="toolbar">
+        <input id="wine-search" type="search" placeholder="Zoek op naam, producent, druif, regio…">
+        <select id="wine-filter-color"><option value="">Alle kleuren</option></select>
+        <select id="wine-sort">
+          <option value="name">Sorteer: naam</option>
+          <option value="vintage">Sorteer: jaargang</option>
+          <option value="score">Sorteer: score</option>
+          <option value="value">Sorteer: waarde</option>
+          <option value="country">Sorteer: land</option>
+        </select>
+        <label class="check"><input type="checkbox" id="wine-show-empty"> Ook op (0 flessen)</label>
+        <span class="spacer"></span>
+        <button class="primary" data-action="add-wine">+ Wijn toevoegen</button>
+      </div>
+      <div id="wine-list"></div>
+    </section>
+
+    <!-- Rekken -->
+    <section id="tab-rekken" class="tab">
+      <div class="toolbar">
+        <div id="rack-tabs" class="pills"></div>
+        <span class="spacer"></span>
+        <button id="btn-edit-rack" data-action="edit-rack">Rek bewerken</button>
+        <button class="primary" data-action="add-rack">+ Rek toevoegen</button>
+      </div>
+      <p class="muted small">Klik op een leeg vak om er een fles neer te leggen, of op een fles om de details te zien.</p>
+      <div id="rack-view"></div>
+    </section>
+
+    <!-- Kaart -->
+    <section id="tab-kaart" class="tab">
+      <div class="map-layout">
+        <div id="map"></div>
+        <aside id="map-side" class="card"></aside>
+      </div>
+    </section>
+
+    <!-- Wensenlijst -->
+    <section id="tab-wensen" class="tab">
+      <div class="toolbar">
+        <h2 class="grow">Wensenlijst</h2>
+        <button class="primary" data-action="add-wish">+ Wens toevoegen</button>
+      </div>
+      <div id="wish-list"></div>
+    </section>
+
+    <!-- Gegevens -->
+    <section id="tab-gegevens" class="tab">
+      <div class="cards">
+        <div class="card">
+          <h3>Back-up</h3>
+          <p id="storage-info"></p>
+          <div class="row">
+            <button class="primary" data-action="export">Back-up downloaden</button>
+            <button data-action="import">Back-up terugzetten…</button>
+            <input type="file" id="import-file" accept=".json,application/json" hidden>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Uitproberen</h3>
+          <p>Laad een set voorbeeldwijnen om te zien hoe alles werkt. Dit vervangt je huidige gegevens.</p>
+          <div class="row">
+            <button data-action="load-sample">Voorbeelddata laden</button>
+            <button class="danger" data-action="clear-all">Alles wissen</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== Dialogen (pop-ups) ===== -->
+
+  <dialog id="dlg-wine">
+    <form id="form-wine">
+      <h2 id="wine-form-title">Wijn toevoegen</h2>
+      <div class="photo-row">
+        <div class="photo-box bottle-box" id="wine-bottle-box" title="Afbeelding van de fles"></div>
+        <div class="photo-box" id="wine-photo-box" title="Jouw foto"></div>
+        <div class="photo-actions">
+          <div class="row">
+            <label class="button">📷 Foto kiezen<input type="file" id="wine-photo-input" accept="image/*" hidden></label>
+            <button type="button" id="btn-photo-remove">Foto verwijderen</button>
+          </div>
+          <button type="button" class="ai" id="btn-ai-fill">✨ Automatisch aanvullen</button>
+          <p id="ai-status" class="small muted">Vul een naam (en jaargang) in, of kies een foto van het etiket, en klik op “Automatisch aanvullen”.</p>
+        </div>
+      </div>
+      <div class="form-grid">
+        <label class="span2">Naam *<input name="name" required placeholder="bijv. Château Margaux"></label>
+        <label>Producent<input name="producer"></label>
+        <label>Jaargang<input name="vintage" type="number" min="1800" max="2100" placeholder="leeg = geen jaargang"></label>
+        <label>Kleur<select name="color" class="color-select"></select></label>
+        <label>Druif<input name="grape" list="dl-grapes"></label>
+        <label>Land<input name="country" list="dl-countries"></label>
+        <label>Regio<input name="region" list="dl-regions"></label>
+        <label>Aantal flessen<input name="quantity" type="number" min="0" step="1"></label>
+        <label>Aankoopprijs per fles (€)<input name="purchasePrice" type="number" min="0" step="0.01"></label>
+        <label>Huidige waarde per fles (€)<input name="value" type="number" min="0" step="0.01"></label>
+        <label>Score (0–100)<input name="score" type="number" min="0" max="100" step="0.5"></label>
+        <label>Bron van de score<input name="scoreSource" placeholder="bijv. eigen, Parker, Vivino"></label>
+        <label>Drinken vanaf (jaar)<input name="drinkFrom" type="number" min="1900" max="2200"></label>
+        <label>Drinken tot (jaar)<input name="drinkUntil" type="number" min="1900" max="2200"></label>
+        <label class="span2">Notities<textarea name="notes" rows="3"></textarea></label>
+        <label class="span2">Afbeelding van de fles (link)
+          <input name="imageUrl" type="url" placeholder="https://… (.png of .jpg)">
+          <span class="hint">Rechtermuisklik op een flesfoto op een website → “Afbeeldingsadres kopiëren” en hier plakken. Leeg laten mag: dan tekent de app zelf een fles.</span>
+        </label>
+        <label class="span2">Vivino-pagina (link)<input name="vivinoUrl" type="url" placeholder="https://www.vivino.com/…"></label>
+      </div>
+      <menu>
+        <button type="button" data-close>Annuleren</button>
+        <button type="submit" class="primary">Opslaan</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-ai">
+    <h2>Aanvullen via Claude</h2>
+    <ol class="steps">
+      <li>
+        <button type="button" class="primary" id="btn-ai-copy">Kopieer de vraag</button>
+        <span id="ai-copy-done" class="small muted"></span>
+      </li>
+      <li id="ai-photo-step">
+        <button type="button" id="btn-ai-copy-photo">Kopieer de foto</button>
+        <span id="ai-photo-done" class="small muted">en plak die ook in de chat</span>
+      </li>
+      <li>
+        Plak alles in een nieuwe chat op <a href="https://claude.ai/new" target="_blank" rel="noopener">claude.ai</a> en verstuur het.
+        <span class="small muted">Staat “zoeken op internet” aan? Dan krijg je actuele prijzen.</span>
+      </li>
+      <li>
+        Kopieer het antwoord van Claude en plak het hier:
+        <textarea id="ai-answer" rows="6" placeholder='{ "found": true, "name": … }'></textarea>
+      </li>
+    </ol>
+    <p id="ai-dialog-status" class="small error"></p>
+    <menu>
+      <span class="spacer"></span>
+      <button type="button" data-close>Annuleren</button>
+      <button type="button" class="primary" id="btn-ai-apply">Invullen</button>
+    </menu>
+  </dialog>
+
+  <dialog id="dlg-wish">
+    <form id="form-wish">
+      <h2 id="wish-form-title">Wens toevoegen</h2>
+      <div class="form-grid">
+        <label class="span2">Naam *<input name="name" required></label>
+        <label>Producent<input name="producer"></label>
+        <label>Jaargang<input name="vintage" type="number" min="1800" max="2100"></label>
+        <label>Kleur<select name="color" class="color-select"></select></label>
+        <label>Prioriteit
+          <select name="priority">
+            <option value="hoog">Hoog</option>
+            <option value="middel">Middel</option>
+            <option value="laag">Laag</option>
+          </select>
+        </label>
+        <label>Land<input name="country" list="dl-countries"></label>
+        <label>Regio<input name="region" list="dl-regions"></label>
+        <label>Richtprijs (€)<input name="price" type="number" min="0" step="0.01"></label>
+        <label>Waar te koop<input name="shop" placeholder="winkel of website"></label>
+        <label class="span2">Notities<textarea name="notes" rows="2"></textarea></label>
+      </div>
+      <menu>
+        <button type="button" data-close>Annuleren</button>
+        <button type="submit" class="primary">Opslaan</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-rack">
+    <form id="form-rack">
+      <h2 id="rack-form-title">Rek toevoegen</h2>
+      <div class="form-grid">
+        <label class="span2">Naam *<input name="name" required placeholder="bijv. Kelder of Keuken"></label>
+        <label>Rijen (hoog)<input name="rows" type="number" min="1" max="26" required></label>
+        <label>Kolommen (breed)<input name="cols" type="number" min="1" max="30" required></label>
+      </div>
+      <menu>
+        <button type="button" class="danger" id="btn-delete-rack">Rek verwijderen</button>
+        <span class="spacer"></span>
+        <button type="button" data-close>Annuleren</button>
+        <button type="submit" class="primary">Opslaan</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-detail">
+    <div id="detail-body"></div>
+    <menu id="detail-actions"></menu>
+  </dialog>
+
+  <dialog id="dlg-place">
+    <h2 id="place-title">Fles plaatsen</h2>
+    <input id="place-search" type="search" placeholder="Zoek wijn…">
+    <div id="place-list" class="place-list"></div>
+    <menu>
+      <button type="button" id="btn-place-new">+ Nieuwe wijn toevoegen</button>
+      <span class="spacer"></span>
+      <button type="button" data-close>Annuleren</button>
+    </menu>
+  </dialog>
+
+  <datalist id="dl-countries"></datalist>
+  <datalist id="dl-regions"></datalist>
+  <datalist id="dl-grapes"></datalist>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/regions.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/sample.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

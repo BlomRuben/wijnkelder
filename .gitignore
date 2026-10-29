@@ -1,0 +1,3 @@
+# Gegevens van de lokale testserver: horen niet in git
+data/
+__pycache__/
