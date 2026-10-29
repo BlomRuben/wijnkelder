@@ -99,18 +99,34 @@ Antwoord met alleen het JSON-blok hieronder, ingevuld. Gebruik null als je iets 
     return info;
   },
 
+  // Geeft true terug als het kopiëren echt gelukt is
   async copyText(text) {
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch {
-      // Oudere manier, voor als de browser het klembord niet direct toestaat
-      const area = document.createElement('textarea');
-      area.value = text;
-      document.body.appendChild(area);
-      area.select();
-      document.execCommand('copy');
-      area.remove();
+    // De moderne manier werkt alleen via https:// (of als los bestand)
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch {
+        // dan de oudere manier hieronder proberen
+      }
     }
+    // Oudere manier, nodig via gewoon http:// (bijv. op je server). Het hulpveld moet
+    // in het geopende venster staan: zolang een venster open is, is alles daarbuiten geblokkeerd.
+    const host = document.activeElement?.closest('dialog[open]') || document.body;
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;';
+    host.appendChild(area);
+    area.select();
+    let ok = false;
+    try {
+      ok = document.execCommand('copy');
+    } catch {
+      ok = false;
+    }
+    area.remove();
+    return ok;
   },
 
   // Het klembord accepteert alleen PNG, dus de foto wordt eerst omgezet

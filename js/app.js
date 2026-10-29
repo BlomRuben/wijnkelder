@@ -578,6 +578,7 @@ function openAiDialog() {
   }
   $('#ai-photo-step').hidden = !formPhoto;
   $('#ai-copy-done').textContent = 'en plak hem in dezelfde chat. Verstuur daarna.';
+  $('#ai-prompt-text').hidden = true;
   $('#ai-photo-done').textContent = 'en plak hem meteen in de chat (Ctrl+V).';
   $('#ai-answer').value = '';
   $('#ai-dialog-status').textContent = '';
@@ -586,15 +587,27 @@ function openAiDialog() {
 
 async function copyAiPrompt() {
   const form = $('#form-wine');
-  await WineAI.copyText(WineAI.buildPrompt({
+  // Altijd opnieuw opbouwen uit wat er nu in het formulier staat
+  const prompt = WineAI.buildPrompt({
     name: form.elements.name.value.trim(),
     vintage: num(form.elements.vintage.value),
     producer: form.elements.producer.value.trim(),
     hasPhoto: !!formPhoto,
-  }));
-  $('#ai-copy-done').textContent = formPhoto
-    ? '✓ Vraag gekopieerd. Plak hem nu in dezelfde chat als de foto en verstuur.'
-    : '✓ Vraag gekopieerd. Plak hem nu in de chat en verstuur.';
+  });
+  const box = $('#ai-prompt-text');
+  if (await WineAI.copyText(prompt)) {
+    box.hidden = true;
+    $('#ai-copy-done').textContent = formPhoto
+      ? '✓ Vraag gekopieerd. Plak hem nu in dezelfde chat als de foto en verstuur.'
+      : '✓ Vraag gekopieerd. Plak hem nu in de chat en verstuur.';
+  } else {
+    // Kopiëren mocht niet: laat de tekst zien, geselecteerd, zodat Ctrl+C genoeg is
+    box.value = prompt;
+    box.hidden = false;
+    box.focus();
+    box.select();
+    $('#ai-copy-done').textContent = 'Automatisch kopiëren lukte niet. De vraag staat hieronder al geselecteerd: druk op Ctrl+C.';
+  }
 }
 
 async function copyAiPhoto() {
