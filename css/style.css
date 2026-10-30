@@ -83,6 +83,7 @@ small { display: block; color: var(--muted); font-size: 0.8rem; font-weight: nor
 .auth-card .error:empty { display: none; }
 .auth-card .error { margin: 0; }
 
+.users-section { margin-top: 2rem; }
 .users-table tbody tr { cursor: default; }
 .users-table small { display: inline; }
 .users-table .actions { text-align: right; white-space: nowrap; }

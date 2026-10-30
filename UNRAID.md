@@ -65,9 +65,11 @@ Daar hoort te staan: `Wijnkelder draait op poort 8080, gegevens in /data`.
 - **Eerste keer:** de app vraagt je een admin-account aan te maken. Doe dat meteen na
   het bijwerken: wie dit scherm als eerste invult, wordt admin. Een kelder die er al stond
   (van vóór de inlogfunctie) wordt automatisch de kelder van deze admin.
-- **Gebruikers toevoegen:** als admin zie je de tab **Gebruikers**. Iedere gebruiker
+- **Gebruikers toevoegen:** als admin zie je onder de tab **Gegevens** ook het blok
+  **Gebruikers**. Iedere gebruiker
   krijgt een eigen, lege kelder en ziet alleen de eigen wijnen.
-- **Wachtwoord vergeten:** een admin kan bij **Gebruikers → Bewerken** een nieuw
+- **Eigen wachtwoord wijzigen:** iedereen kan dat via **Gegevens → Je account**.
+- **Wachtwoord vergeten:** een admin kan bij **Gegevens → Gebruikers → Bewerken** een nieuw
   wachtwoord instellen. Na een wachtwoordwijziging worden andere apparaten uitgelogd.
 - **Gebruiker verwijderd:** de kelder wordt niet gewist maar apart gezet in
   `verwijderd/` in de appdata-map.

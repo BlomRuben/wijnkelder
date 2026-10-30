@@ -13,7 +13,6 @@
       <h1>🍷 Wijnkelder</h1>
       <div id="account" class="account" hidden>
         <span>👤 <strong id="account-name"></strong></span>
-        <button data-action="change-password">Wachtwoord wijzigen</button>
         <button data-action="logout">Uitloggen</button>
       </div>
     </div>
@@ -24,7 +23,6 @@
       <button data-tab="kaart">Kaart</button>
       <button data-tab="wensen">Wensenlijst</button>
       <button data-tab="gegevens">Gegevens</button>
-      <button data-tab="gebruikers" id="tab-btn-gebruikers" hidden>Gebruikers</button>
     </nav>
   </header>
 
@@ -118,16 +116,24 @@
             <button class="danger" data-action="clear-all">Alles wissen</button>
           </div>
         </div>
+        <!-- Alleen via de server, als je bent ingelogd -->
+        <div class="card" id="account-card" hidden>
+          <h3>Je account</h3>
+          <p>Je bent ingelogd als <strong id="account-card-name"></strong>.</p>
+          <div class="row">
+            <button data-action="change-password">Wachtwoord wijzigen</button>
+          </div>
+        </div>
       </div>
-    </section>
 
-    <!-- Gebruikers (alleen zichtbaar voor een admin) -->
-    <section id="tab-gebruikers" class="tab">
-      <div class="toolbar">
-        <h2 class="grow">Gebruikers</h2>
-        <button class="primary" data-action="add-user">+ Gebruiker toevoegen</button>
+      <!-- Gebruikers: alleen zichtbaar voor een admin -->
+      <div id="users-section" class="users-section" hidden>
+        <div class="toolbar">
+          <h2 class="grow">Gebruikers</h2>
+          <button class="primary" data-action="add-user">+ Gebruiker toevoegen</button>
+        </div>
+        <div id="user-list"></div>
       </div>
-      <div id="user-list"></div>
     </section>
   </main>
 

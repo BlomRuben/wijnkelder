@@ -80,12 +80,14 @@ async function logout() {
   location.reload();
 }
 
-// Toont wie er is ingelogd, en de pagina Gebruikers alleen voor een admin
+// Toont wie er is ingelogd; het gebruikersbeheer onder Gegevens alleen voor een admin
 function showUser(user) {
   currentUser = user;
   $('#account').hidden = false;
   $('#account-name').textContent = user.username;
-  $('#tab-btn-gebruikers').hidden = user.role !== 'admin';
+  $('#account-card').hidden = false;
+  $('#account-card-name').textContent = user.username;
+  $('#users-section').hidden = user.role !== 'admin';
 }
 
 // ---------- Eigen wachtwoord ----------
@@ -168,7 +170,7 @@ async function onUserSubmit(e) {
       const changes = { role: f.role.value };
       if (f.password.value) changes.password = f.password.value;
       await Auth.updateUser(editingUserId, changes);
-      // Jezelf geen admin meer gemaakt? Dan verdwijnt deze pagina
+      // Jezelf geen admin meer gemaakt? Dan verdwijnt het gebruikersbeheer
       if (editingUserId === currentUser.id && f.role.value !== 'admin') return location.reload();
     } else {
       await Auth.createUser({ username: f.username.value, password: f.password.value, role: f.role.value });

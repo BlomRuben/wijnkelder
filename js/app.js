@@ -164,7 +164,7 @@ function showTab(name) {
   $$('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
   $$('.tab').forEach(s => s.classList.toggle('active', s.id === 'tab-' + name));
   if (name === 'kaart') renderMap();
-  if (name === 'gebruikers') loadUsers();
+  if (name === 'gegevens' && currentUser?.role === 'admin') loadUsers();
 }
 
 // ---------- Overzicht ----------
