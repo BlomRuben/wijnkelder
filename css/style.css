@@ -29,7 +29,7 @@ body {
   line-height: 1.45;
 }
 
-/* Achtergrond: Toscaanse wijngaard (Castello la Leccia, foto "Der Robert", CC0 via Wikimedia Commons).
+/* Achtergrond: Chianti-wijngaarden bij Castellina in Chianti (foto Rowan Heuvel, CC0 via Wikimedia Commons).
    Een lichte waas erover houdt tekst en tabellen goed leesbaar. Een vaste laag i.p.v.
    background-attachment: fixed, omdat dat op telefoons niet werkt. */
 body::before {
@@ -39,7 +39,7 @@ body::before {
   z-index: -1;
   background:
     linear-gradient(rgba(247, 243, 239, var(--veil, 0.82)), rgba(247, 243, 239, var(--veil, 0.82))),
-    url("../img/toscane.jpg") center 60% / cover no-repeat;
+    url("../img/chianti.jpg") center 60% / cover no-repeat;
 }
 /* Op het inlogscherm mag de wijngaard meer te zien zijn */
 body.logged-out { --veil: 0.25; }
