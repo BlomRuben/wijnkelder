@@ -29,6 +29,21 @@ body {
   line-height: 1.45;
 }
 
+/* Achtergrond: Toscaanse wijngaard (Castello la Leccia, foto "Der Robert", CC0 via Wikimedia Commons).
+   Een lichte waas erover houdt tekst en tabellen goed leesbaar. Een vaste laag i.p.v.
+   background-attachment: fixed, omdat dat op telefoons niet werkt. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(rgba(247, 243, 239, var(--veil, 0.82)), rgba(247, 243, 239, var(--veil, 0.82))),
+    url("../img/toscane.jpg") center 60% / cover no-repeat;
+}
+/* Op het inlogscherm mag de wijngaard meer te zien zijn */
+body.logged-out { --veil: 0.25; }
+
 h1, h2, h3 { margin: 0; line-height: 1.2; }
 h2 { font-size: 1.3rem; }
 h3 { font-size: 1rem; margin-bottom: 0.75rem; }
@@ -38,6 +53,7 @@ small { display: block; color: var(--muted); font-size: 0.8rem; font-weight: nor
 .grow { flex: 1; min-width: 0; }
 .spacer { flex: 1; }
 .pad { padding: 1rem; }
+[hidden] { display: none !important; }
 
 /* ---------- Kopbalk & tabs ---------- */
 
@@ -47,6 +63,30 @@ small { display: block; color: var(--muted); font-size: 0.8rem; font-weight: nor
   padding: 0.75rem 1rem 0;
 }
 .topbar h1 { font-size: 1.35rem; margin-bottom: 0.6rem; }
+.topbar-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; }
+.account { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; font-size: 0.9rem; }
+.account button {
+  background: transparent;
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.45);
+  padding: 0.3rem 0.7rem;
+  font-size: 0.85rem;
+}
+.account button:hover { border-color: #fff; background: rgba(255, 255, 255, 0.1); }
+
+/* Inlogscherm: zolang je niet bent ingelogd, is de rest van de app verborgen */
+.auth-screen { display: none; justify-content: center; padding: 3rem 1rem; }
+.logged-out .auth-screen { display: flex; }
+.logged-out main, .logged-out .tabs, .logged-out .account { display: none; }
+.auth-card { width: min(380px, 100%); display: flex; flex-direction: column; gap: 0.85rem; }
+.auth-card label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; color: var(--muted); }
+.auth-card .error:empty { display: none; }
+.auth-card .error { margin: 0; }
+
+.users-table tbody tr { cursor: default; }
+.users-table small { display: inline; }
+.users-table .actions { text-align: right; white-space: nowrap; }
+.users-table .actions button { padding: 0.3rem 0.7rem; font-size: 0.85rem; }
 
 .tabs { display: flex; gap: 0.25rem; overflow-x: auto; }
 .tabs button {

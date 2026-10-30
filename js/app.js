@@ -164,6 +164,7 @@ function showTab(name) {
   $$('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
   $$('.tab').forEach(s => s.classList.toggle('active', s.id === 'tab-' + name));
   if (name === 'kaart') renderMap();
+  if (name === 'gebruikers') loadUsers();
 }
 
 // ---------- Overzicht ----------
@@ -947,6 +948,11 @@ function onDocumentClick(e) {
       case 'import':      $('#import-file').click(); break;
       case 'load-sample': loadSample(); break;
       case 'clear-all':   clearAll(); break;
+      case 'logout':      logout(); break;
+      case 'change-password': openPasswordForm(); break;
+      case 'add-user':    openUserForm(); break;
+      case 'edit-user':   openUserForm(users.find(u => u.id === id)); break;
+      case 'delete-user': deleteUser(id); break;
     }
     return;
   }
@@ -1026,6 +1032,9 @@ async function init() {
   $('#form-wine').addEventListener('submit', onWineSubmit);
   $('#form-wish').addEventListener('submit', onWishSubmit);
   $('#form-rack').addEventListener('submit', onRackSubmit);
+  $('#form-auth').addEventListener('submit', onAuthSubmit);
+  $('#form-password').addEventListener('submit', onPasswordSubmit);
+  $('#form-user').addEventListener('submit', onUserSubmit);
   $('#btn-delete-rack').addEventListener('click', deleteRack);
   // Als het wijnformulier sluit (opslaan óf annuleren), vergeten we wat er "klaarstond"
   $('#dlg-wine').addEventListener('close', () => { pendingPlacement = null; pendingWishId = null; });
@@ -1076,10 +1085,31 @@ async function init() {
     if (saving || dirty) e.preventDefault();
   });
 
+  // Verlopen sessie, of elders je wachtwoord gewijzigd: terug naar het inlogscherm
+  document.addEventListener('wijnkelder:uitgelogd', () => {
+    if (document.body.classList.contains('logged-out')) return;
+    dirty = false;   // opslaan kan niet meer; niet blijven proberen of waarschuwen bij het verlaten
+    showAuthScreen('login', { message: 'Je bent uitgelogd, bijvoorbeeld omdat je wachtwoord is gewijzigd. Log opnieuw in.' });
+  });
+
   $('#storage-info').textContent = Storage.remote
-    ? 'Je gegevens en foto\'s staan op je server, dus je ziet op elk apparaat dezelfde kelder. ' +
+    ? 'Je gegevens en foto\'s staan op je server in je eigen kelder: je ziet ze op elk apparaat waarop je inlogt. ' +
       'De server bewaart zelf elke dag een kopie; een back-up downloaden kan altijd nog extra.'
     : 'Je gegevens worden opgeslagen in deze browser. Maak af en toe een back-up, dan raak je nooit iets kwijt.';
+
+  // Via de server eerst kijken wie er is ingelogd
+  if (Storage.remote) {
+    let session;
+    try {
+      session = await Auth.session();
+    } catch (err) {
+      $('#tab-overzicht').innerHTML = `<div class="empty-state card"><h2>De server is niet bereikbaar</h2>
+        <p>${esc(err.message)} Ververs de pagina om het opnieuw te proberen.</p></div>`;
+      return;
+    }
+    if (!session.user) return showAuthScreen(session.setup ? 'setup' : 'login', { legacy: session.legacy });
+    showUser(session.user);
+  }
 
   try {
     data = await Storage.load();

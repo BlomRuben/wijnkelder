@@ -61,6 +61,24 @@ Daar hoort te staan: `Wijnkelder draait op poort 8080, gegevens in /data`.
 1. Open de oude versie op je pc (dubbelklik `index.html`) → **Gegevens** → **Back-up downloaden**.
 2. Open de app op de server → **Gegevens** → **Back-up terugzetten…** en kies dat bestand.
 
+## Inloggen en gebruikers
+- **Eerste keer:** de app vraagt je een admin-account aan te maken. Doe dat meteen na
+  het bijwerken: wie dit scherm als eerste invult, wordt admin. Een kelder die er al stond
+  (van vóór de inlogfunctie) wordt automatisch de kelder van deze admin.
+- **Gebruikers toevoegen:** als admin zie je de tab **Gebruikers**. Iedere gebruiker
+  krijgt een eigen, lege kelder en ziet alleen de eigen wijnen.
+- **Wachtwoord vergeten:** een admin kan bij **Gebruikers → Bewerken** een nieuw
+  wachtwoord instellen. Na een wachtwoordwijziging worden andere apparaten uitgelogd.
+- **Gebruiker verwijderd:** de kelder wordt niet gewist maar apart gezet in
+  `verwijderd/` in de appdata-map.
+- **Alle accounts kwijt?** Stop de container, verwijder `users.json` uit de appdata-map
+  en start opnieuw: dan verschijnt het instelscherm weer. De kelders zelf blijven staan.
+- Na 10 foute pogingen binnen een kwartier weigert de app verdere pogingen vanaf dat apparaat.
+
+In de appdata-map staan nu: `users.json` (accounts, wachtwoorden alleen versleuteld),
+`secret.key` (ondertekent de inlogcookies; niet delen) en `users/<code>/` met per
+gebruiker `wijnkelder.json`, `photos/` en `backups/`.
+
 ## Een nieuwe versie zetten (na wijzigingen met Claude)
 1. Claude legt de wijziging vast in git (een *commit*).
 2. `git push`
@@ -76,18 +94,20 @@ Zet in Unraid bij Repository `ghcr.io/blomruben/wijnkelder:<commit-code>` in
 plaats van `:latest`. Zet het later terug op `:latest` om weer mee te gaan met updates.
 
 ## Onderweg gebruiken
-De app heeft geen wachtwoord. Zet poort 8080 dus **niet** open in je router.
+De app heeft nu een login, maar zet poort 8080 toch **niet** open in je router: via
+gewoon `http://` gaat je wachtwoord onversleuteld over het internet.
 Gebruik in plaats daarvan **Tailscale**: installeer de Tailscale-plugin op Unraid en
 de Tailscale-app op je telefoon. Dan bereik je de app overal via het Tailscale-adres
-van je server, alleen jij.
+van je server, alleen jij (Tailscale versleutelt de verbinding).
 
 Tip: via gewoon `http://` mag de browser niet bij je klembord voor foto's, dus
 “Kopieer de foto” werkt dan niet (de vraag kopiëren wel). Sleep de foto dan zelf in de
 chat, of zet in Tailscale HTTPS aan (`tailscale serve`) om een `https://`-adres te krijgen.
 
 ## Back-ups
-- De server bewaart elke dag een kopie in `backups/` (de laatste 30 dagen).
+- De server bewaart per gebruiker elke dag een kopie in `users/<code>/backups/` (de laatste 30 dagen).
   Terugzetten: stop de container, kopieer de gewenste kopie (via de Unraid-terminal)
-  naar `/mnt/user/appdata/wijnkelder/wijnkelder.json` en start de container.
+  naar `/mnt/user/appdata/wijnkelder/users/<code>/wijnkelder.json` en start de container.
+  De `<code>` van een gebruiker staat in `users.json`.
 - De Unraid-plugin **Appdata Backup** neemt de gegevensmap automatisch mee.
 - Extra zekerheid: af en toe **Back-up downloaden** in de app (inclusief foto's).

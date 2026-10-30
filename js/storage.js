@@ -13,6 +13,8 @@ const STORAGE_KEY = 'wijnkelder-v1';
 
 // Fout als de gegevens intussen op een ander apparaat zijn gewijzigd
 class ConflictError extends Error {}
+// Fout als je niet (meer) bent ingelogd; de app toont dan het inlogscherm
+class AuthError extends Error {}
 
 // Doet een verzoek aan de server en geeft het JSON-antwoord terug
 async function api(path, options = {}) {
@@ -23,8 +25,25 @@ async function api(path, options = {}) {
     throw new Error('De server is niet bereikbaar.');
   }
   if (res.status === 409) throw new ConflictError('De gegevens zijn op een ander apparaat gewijzigd.');
-  if (!res.ok) throw new Error(`De server gaf een fout (${res.status}).`);
+  if (res.status === 401) {
+    document.dispatchEvent(new Event('wijnkelder:uitgelogd'));
+    throw new AuthError('Je bent niet (meer) ingelogd.');
+  }
+  if (!res.ok) {
+    // De server legt in de meeste gevallen zelf uit wat er mis is
+    const message = await res.json().then(body => body.error, () => null);
+    throw new Error(message || `De server gaf een fout (${res.status}).`);
+  }
   return res.json();
+}
+
+// JSON versturen naar de server
+function apiSend(method, path, body) {
+  return api(path, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body ?? {}),
+  });
 }
 
 const Storage = {
@@ -48,11 +67,7 @@ const Storage = {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       return;
     }
-    const result = await api('api/data', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ version: Storage.version, data }),
-    });
+    const result = await apiSend('PUT', 'api/data', { version: Storage.version, data });
     Storage.version = result.version;
   },
 

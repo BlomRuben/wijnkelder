@@ -7,6 +7,7 @@ WORKDIR /app
 COPY server.py index.html ./
 COPY css ./css
 COPY js ./js
+COPY img ./img
 
 ENV DATA_DIR=/data \
     PORT=8080

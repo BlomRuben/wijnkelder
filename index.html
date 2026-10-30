@@ -9,7 +9,14 @@
 </head>
 <body>
   <header class="topbar">
-    <h1>🍷 Wijnkelder</h1>
+    <div class="topbar-head">
+      <h1>🍷 Wijnkelder</h1>
+      <div id="account" class="account" hidden>
+        <span>👤 <strong id="account-name"></strong></span>
+        <button data-action="change-password">Wachtwoord wijzigen</button>
+        <button data-action="logout">Uitloggen</button>
+      </div>
+    </div>
     <nav class="tabs">
       <button data-tab="overzicht" class="active">Overzicht</button>
       <button data-tab="wijnen">Wijnen</button>
@@ -17,8 +24,22 @@
       <button data-tab="kaart">Kaart</button>
       <button data-tab="wensen">Wensenlijst</button>
       <button data-tab="gegevens">Gegevens</button>
+      <button data-tab="gebruikers" id="tab-btn-gebruikers" hidden>Gebruikers</button>
     </nav>
   </header>
+
+  <!-- Inloggen of de eerste admin aanmaken (alleen via de server) -->
+  <section id="auth-screen" class="auth-screen">
+    <form id="form-auth" class="card auth-card">
+      <h2 id="auth-title">Inloggen</h2>
+      <p id="auth-intro" class="muted"></p>
+      <label>Gebruikersnaam<input name="username" required autocomplete="username" autocapitalize="none" spellcheck="false"></label>
+      <label>Wachtwoord<input name="password" type="password" required autocomplete="current-password"></label>
+      <label id="auth-repeat">Herhaal wachtwoord<input name="repeat" type="password" autocomplete="new-password"></label>
+      <p id="auth-error" class="error" role="alert"></p>
+      <button type="submit" class="primary">Inloggen</button>
+    </form>
+  </section>
 
   <main>
     <div id="banner" class="banner" role="alert" hidden></div>
@@ -98,6 +119,15 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- Gebruikers (alleen zichtbaar voor een admin) -->
+    <section id="tab-gebruikers" class="tab">
+      <div class="toolbar">
+        <h2 class="grow">Gebruikers</h2>
+        <button class="primary" data-action="add-user">+ Gebruiker toevoegen</button>
+      </div>
+      <div id="user-list"></div>
     </section>
   </main>
 
@@ -222,6 +252,43 @@
     </form>
   </dialog>
 
+  <dialog id="dlg-user">
+    <form id="form-user">
+      <h2 id="user-form-title">Gebruiker toevoegen</h2>
+      <div class="form-grid">
+        <label class="span2">Gebruikersnaam *<input name="username" required autocomplete="off" autocapitalize="none" spellcheck="false"></label>
+        <label>Rol
+          <select name="role">
+            <option value="user">Gebruiker</option>
+            <option value="admin">Admin</option>
+          </select>
+        </label>
+        <label id="user-password-label">Wachtwoord *<input name="password" type="password" autocomplete="new-password"></label>
+      </div>
+      <p id="user-error" class="error" role="alert"></p>
+      <menu>
+        <button type="button" data-close>Annuleren</button>
+        <button type="submit" class="primary">Opslaan</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="dlg-password">
+    <form id="form-password">
+      <h2>Wachtwoord wijzigen</h2>
+      <div class="form-grid">
+        <label class="span2">Huidig wachtwoord<input name="current" type="password" required autocomplete="current-password"></label>
+        <label>Nieuw wachtwoord<input name="password" type="password" required minlength="8" autocomplete="new-password"></label>
+        <label>Herhaal nieuw wachtwoord<input name="repeat" type="password" required autocomplete="new-password"></label>
+      </div>
+      <p id="password-error" class="error" role="alert"></p>
+      <menu>
+        <button type="button" data-close>Annuleren</button>
+        <button type="submit" class="primary">Opslaan</button>
+      </menu>
+    </form>
+  </dialog>
+
   <dialog id="dlg-detail">
     <div id="detail-body"></div>
     <menu id="detail-actions"></menu>
@@ -247,6 +314,7 @@
   <script src="js/storage.js"></script>
   <script src="js/sample.js"></script>
   <script src="js/ai.js"></script>
+  <script src="js/auth.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
