@@ -800,7 +800,8 @@ function renderMap() {
   }
   const groups = {};
   const unknown = [];
-  for (const w of inStock()) {
+  const wines = $('#map-show-empty').checked ? data.wines : inStock();
+  for (const w of wines) {
     const loc = locate(w.country, w.region);
     if (!loc) { unknown.push(w); continue; }
     const g = groups[loc.label] ||= { loc, wines: [], bottles: 0 };
@@ -812,13 +813,16 @@ function renderMap() {
   const list = Object.values(groups).sort((a, b) => b.bottles - a.bottles);
   for (const g of list) {
     const main = g.wines.slice().sort((a, b) => b.quantity - a.quantity)[0];
+    const hex = colorOf(main).hex;
+    // Alleen lege wijnen op deze plek: een licht bolletje met een gekleurde rand
+    const empty = g.bottles === 0;
     const marker = L.circleMarker([g.loc.lat, g.loc.lng], {
       radius: 7 + Math.sqrt(g.bottles) * 4,
-      color: '#fff', weight: 2,
-      fillColor: colorOf(main).hex, fillOpacity: 0.85,
+      color: empty ? hex : '#fff', weight: 2,
+      fillColor: hex, fillOpacity: empty ? 0.2 : 0.85,
     }).bindPopup(`
       <strong>${esc(g.loc.label)}</strong> – ${g.bottles} fles(sen)
-      <ul class="popup-list">${g.wines.map(w => `<li>${dot(w)}${esc(wineTitle(w))} <small>(${w.quantity})</small></li>`).join('')}</ul>`);
+      <ul class="popup-list">${g.wines.map(w => `<li>${dot(w)}${esc(wineTitle(w))} <small>(${w.quantity || 'op'})</small></li>`).join('')}</ul>`);
     marker.addTo(markerLayer);
     markersByLabel[g.loc.label] = marker;
   }
@@ -982,6 +986,7 @@ async function init() {
 
   ['#wine-search', '#wine-filter-color', '#wine-sort', '#wine-show-empty']
     .forEach(sel => $(sel).addEventListener('input', renderWineList));
+  $('#map-show-empty').addEventListener('input', renderMap);
 
   // Klik naast het wijnvenster of het plaatsvenster (op de donkere achtergrond) sluit het.
   // Niet bij de formulieren: dan raak je met één misklik je invoer kwijt.
